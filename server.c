@@ -41,7 +41,7 @@ int main(void)
 	hints.ai_flags = AI_PASSIVE;
 
 
-	while (1) {
+	
 	//APERTURA DEL SOCKET IN ASCOLTO (Server)
 	
 	//PRIMA VERIFICA: prendo le info del server e verifico se la porta è libera
@@ -91,6 +91,7 @@ int main(void)
 	//Pulisco la memoria
 	//Non fondamentale ma buona pratica per evitare "memory leak"
 	freeaddrinfo(servinfo);
+	while (1) {
 	printf("Da qui in poi il Server in attesa...\n");
 		//Ricevo il messaggio
 		addr_len = sizeof their_addr;
@@ -107,35 +108,13 @@ int main(void)
 		buf[numbytes] = '\0';
 		printf("...Contentente: \"%s\"...\n", buf);
 		printf("In ricezione...\n");
-		//Close socket to make new one in uscita
-		close(sockfd);
 		
 		//mando un ricevuto al client
-		// Inizializzo socket endpoint 
-		if ((status = getaddrinfo("localhost", CLIENTPORT, &hints, &servinfo)) != 0) {
-			printf("Errore di gettaddrinfo: %s\n", gai_strerror(status));
-			exit(1);
-		}
-		for (p = servinfo; p != NULL; p = p->ai_next) {
-			if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
-				perror("Errore nel Socket");
-				continue;
-			}
-			break;
-		}
-
-		if (p == NULL) {
-			fprintf(stderr, "talker: failed to bind socket\n");
-			return 2;
-		}
-		
 		if ((sendto(sockfd, msg, sizeof(msg), 0,
 			(struct sockaddr*)&their_addr, addr_len)) == -1) {
 			perror("Errore nell'invio del messaggio");
 			exit(1);
 		}
-		
-	
 		printf("Inviato 'ricevuto' \n");
 		
 		//ENDS SERVER IF SENT WORD CRASH
@@ -143,9 +122,8 @@ int main(void)
 			printf("SERVER CHIUSO -- RICEVUTO COMANDO CRASH \n");
 			break;
 		}
-		close(sockfd);
 	}
-	
+	close(sockfd);
 
 	return 0;
 }
